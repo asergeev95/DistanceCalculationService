@@ -22,6 +22,7 @@ namespace DCS.Host
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "DCS.Host", Version = "v1"}); });
             services.ConfigureServices();
+            services.AddMemoryCache();
             services.ConfigureExternalServices(Configuration);
         }
 

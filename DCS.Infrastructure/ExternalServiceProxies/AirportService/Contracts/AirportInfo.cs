@@ -17,7 +17,7 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts
     
     public class Location
     {
-        public double Londitute { get; set; }
+        public double Longitude { get; set; }
         public double Latitude { get; set; }
     }
 }

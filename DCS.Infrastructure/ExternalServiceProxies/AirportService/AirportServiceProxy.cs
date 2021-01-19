@@ -106,7 +106,7 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
                 Location = new Location
                 {
                     Latitude = response.location.lat,
-                    Londitute = response.location.lon
+                    Longitude = response.location.lon
                 },
                 Name = response.name,
                 Rating = response.rating,

@@ -1,4 +1,5 @@
 using System.Net.Http;
+using DCS.ApplicationService;
 using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ namespace DCS.Host.Boostrap
         public static IServiceCollection ConfigureServices(this IServiceCollection services)
         {
             services.AddSingleton<ICacheService, WebCacheAdapter>();
+            services.AddSingleton<DistanceCalculationService>();
             return services;
         }
     }

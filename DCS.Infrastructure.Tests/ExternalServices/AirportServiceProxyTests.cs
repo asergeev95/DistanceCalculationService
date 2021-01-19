@@ -33,7 +33,7 @@ namespace DCS.Tests.ExternalServices
 
             var location = airportInfo.Location;
             location.Latitude.Should().Be(55.009011);
-            location.Londitute.Should().Be(82.666999);
+            location.Longitude.Should().Be(82.666999);
         }
         
         [Test]
