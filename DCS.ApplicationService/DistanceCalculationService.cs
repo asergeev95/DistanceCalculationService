@@ -14,6 +14,10 @@ namespace DCS.ApplicationService
 
         public (string FaultMessage, bool IsSuccess, double distance) CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
         {
+            #warning validation of iata code length
+            #warning iata code length validation tests
+            #warning CalculateDistanceBetweenAirports tests
+            
             var firstAirportInfo = _airportService.GetAirportInfo(iataCode.ToUpperInvariant());
             if (firstAirportInfo.IsSuccess == false)
             {
