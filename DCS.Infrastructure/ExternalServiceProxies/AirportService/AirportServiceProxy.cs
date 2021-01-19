@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DCS.Core;
+using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -13,33 +14,53 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
 {
     public class AirportServiceProxy : IAirportService
     {
+        private static readonly object LockObject = new();
         private readonly HttpClient _httpClient;
+        private readonly ICacheService _cacheService;
         private readonly AirportServiceConfiguration _serviceConfiguration;
 
-        public AirportServiceProxy(HttpClient httpClient, AirportServiceConfiguration serviceConfiguration)
+        public AirportServiceProxy(HttpClient httpClient, ICacheService cacheService, AirportServiceConfiguration serviceConfiguration)
         {
             _httpClient = httpClient;
+            _cacheService = cacheService;
             _serviceConfiguration = serviceConfiguration;
         }
-        public async Task<Result<Contracts.AirportInfo>> GetAirportInfo(string iataCode)
+        public Result<Contracts.AirportInfo> GetAirportInfo(string iataCode)
         {
-            var (url, method) = BuildGetAirportInfoUrl(iataCode);
-            var response = await GetResponseAsync<AirportInfo>(url, method);
-            if (response.IsSuccess)
+            if (!_cacheService.TryGetValue(iataCode, out Contracts.AirportInfo airportInfo))
             {
-                return new Result<Contracts.AirportInfo>
+                lock (LockObject)
                 {
-                    Value = Map(response.Value),
-                    FaultMessage = response.FaultMessage,
-                    IsSuccess = true
-                };
+                    if (!_cacheService.TryGetValue(iataCode, out airportInfo))
+                    {
+                       
+                        var (url, method) = BuildGetAirportInfoUrl(iataCode);
+                        var (isSuccess, faultMessage, value) = GetResponseAsync<AirportInfo>(url, method).Result;
+                        if (isSuccess == false)
+                        {
+                            return new Result<Contracts.AirportInfo>
+                            {
+                                Value = null,
+                                FaultMessage = faultMessage,
+                                IsSuccess = false
+                            };
+                        }
+                        airportInfo = Map(value);
+                        _cacheService.Add(iataCode, airportInfo, DateTime.Now.AddMinutes(20));
+                        return new Result<Contracts.AirportInfo>
+                        {
+                            Value = airportInfo,
+                            FaultMessage = null,
+                            IsSuccess = true
+                        };
+                    }
+                }
             }
-
             return new Result<Contracts.AirportInfo>
             {
-                Value = null,
-                FaultMessage = response.FaultMessage,
-                IsSuccess = false
+                Value = airportInfo,
+                FaultMessage = null,
+                IsSuccess = true
             };
         }
 

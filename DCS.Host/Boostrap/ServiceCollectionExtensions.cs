@@ -1,4 +1,5 @@
 using System.Net.Http;
+using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,12 @@ namespace DCS.Host.Boostrap
             services.AddSingleton<IAirportService, AirportServiceProxy>();
             
             services.AddSingleton<HttpClient>();
+            return services;
+        }
+
+        public static IServiceCollection ConfigureServices(this IServiceCollection services)
+        {
+            services.AddSingleton<ICacheService, WebCacheAdapter>();
             return services;
         }
     }

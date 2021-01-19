@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ namespace DCS.Tests.Bootstrap
             services.AddTransient<IAirportService, AirportServiceProxy>();
             
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<ICacheService, NullObjectCacheAdapter>();
             return services;
         }
     }
