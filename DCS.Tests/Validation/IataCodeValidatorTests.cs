@@ -21,10 +21,10 @@ namespace DCS.Tests.Validation
         public void ShouldHaveValidationErrorForIncorrectIataCodeLength()
         {
             var iataCode = "XX";
-            _validator.TestValidate(iataCode).ShouldHaveValidationErrorFor(x => x);
+            _validator.TestValidate(iataCode).ShouldHaveValidationErrorFor(x => x).WithErrorMessage("Iata code length should be equal 3");
 
             iataCode = "XXXX";
-            _validator.TestValidate(iataCode).ShouldHaveValidationErrorFor(x => x);
+            _validator.TestValidate(iataCode).ShouldHaveValidationErrorFor(x => x).WithErrorMessage("Iata code length should be equal 3");
         }
 
         [Test]
@@ -32,6 +32,20 @@ namespace DCS.Tests.Validation
         {
             const string iataCode = "XXX";
             _validator.TestValidate(iataCode).ShouldNotHaveAnyValidationErrors();
+        }
+
+        [Test]
+        public void ShouldNotHaveValidationErrorForIataCodeWithLatinLettersOnly()
+        {
+            const string iataCode = "XXX";
+            _validator.TestValidate(iataCode).ShouldNotHaveAnyValidationErrors();
+        }
+        
+        [Test]
+        public void ShouldHaveValidationErrorForIataCodeWithNotOnlyLatinLetters()
+        {
+            const string iataCode = "АБВ";
+            _validator.TestValidate(iataCode).ShouldHaveValidationErrorFor(x => x).WithErrorMessage("Iata code must contains only latin letters");
         }
     }
 }

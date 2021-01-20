@@ -21,7 +21,6 @@ namespace DCS.ApplicationService
             _validator.ValidateAndThrow(iataCode);
             _validator.ValidateAndThrow(destinationIataCode);
             
-            #warning iata code length validation tests
             #warning CalculateDistanceBetweenAirports tests
             
             var firstAirportInfo = _airportService.GetAirportInfo(iataCode.ToUpperInvariant());
