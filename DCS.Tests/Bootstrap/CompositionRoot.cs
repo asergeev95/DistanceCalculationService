@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DCS.Infrastructure.Tests.Bootstrap
+namespace DCS.Tests.Bootstrap
 {
     internal static class CompositionRoot
     {

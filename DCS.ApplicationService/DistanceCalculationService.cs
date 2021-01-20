@@ -1,4 +1,6 @@
-﻿using DCS.Infrastructure.ExternalServiceProxies.AirportService;
+﻿using DCS.ApplicationService.Validation;
+using DCS.Infrastructure.ExternalServiceProxies.AirportService;
+using FluentValidation;
 using GeoCoordinatePortable;
 
 namespace DCS.ApplicationService
@@ -6,15 +8,19 @@ namespace DCS.ApplicationService
     public class DistanceCalculationService
     {
         private readonly IAirportService _airportService;
+        private readonly IataCodeValidator _validator;
 
-        public DistanceCalculationService(IAirportService airportService)
+        public DistanceCalculationService(IAirportService airportService, IataCodeValidator validator)
         {
             _airportService = airportService;
+            _validator = validator;
         }
 
         public (string FaultMessage, bool IsSuccess, double distance) CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
         {
-            #warning validation of iata code length
+            _validator.ValidateAndThrow(iataCode);
+            _validator.ValidateAndThrow(destinationIataCode);
+            
             #warning iata code length validation tests
             #warning CalculateDistanceBetweenAirports tests
             

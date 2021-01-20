@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
-using DCS.Tests.Bootstrap;
+using DCS.Infrastructure.Tests.Bootstrap;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace DCS.Tests.ExternalServices
+namespace DCS.Infrastructure.Tests.ExternalServices
 {
     [TestFixture]
     public class AirportServiceProxyTests
