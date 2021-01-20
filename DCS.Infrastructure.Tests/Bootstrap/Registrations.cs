@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,9 +16,11 @@ namespace DCS.Infrastructure.Tests.Bootstrap
             });
             services.AddSingleton(isp => isp.GetRequiredService<IOptions<AirportServiceConfiguration>>().Value);
             services.AddTransient<IAirportService, AirportServiceProxy>();
-            
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379";
+            });
             services.AddSingleton<HttpClient>();
-            services.AddSingleton<ICacheService, NullObjectCacheAdapter>();
             return services;
         }
     }

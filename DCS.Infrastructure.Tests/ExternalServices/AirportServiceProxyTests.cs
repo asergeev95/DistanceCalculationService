@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Tasks;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using DCS.Infrastructure.Tests.Bootstrap;
 using FluentAssertions;
@@ -11,10 +12,10 @@ namespace DCS.Infrastructure.Tests.ExternalServices
     public class AirportServiceProxyTests
     {
         [Test]
-        public void ShouldGetAirportInfo()
+        public async Task ShouldGetAirportInfo()
         {
             var airportService = GetService();
-            var airportInfoResponse = airportService.GetAirportInfo("OVB");
+            var airportInfoResponse = await airportService.GetAirportInfo("OVB");
             airportInfoResponse.IsSuccess.Should().BeTrue();
             airportInfoResponse.FaultMessage.Should().BeNull();
             airportInfoResponse.Value.Should().NotBeNull();
@@ -37,10 +38,10 @@ namespace DCS.Infrastructure.Tests.ExternalServices
         }
         
         [Test]
-        public void ShouldGetNotFoundForNonExistingAirport()
+        public async Task ShouldGetNotFoundForNonExistingAirport()
         {
             var airportService = GetService();
-            var airportInfoResponse = airportService.GetAirportInfo("XXX");
+            var airportInfoResponse = await airportService.GetAirportInfo("XXX");
 
             airportInfoResponse.IsSuccess.Should().BeFalse();
             airportInfoResponse.FaultMessage.Should().Be("Not Found");

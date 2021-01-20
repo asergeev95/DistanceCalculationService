@@ -1,4 +1,5 @@
-﻿using DCS.ApplicationService.Validation;
+﻿using System.Threading.Tasks;
+using DCS.ApplicationService.Validation;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using FluentValidation;
 using GeoCoordinatePortable;
@@ -16,17 +17,19 @@ namespace DCS.ApplicationService
             _validator = validator;
         }
 
-        public (string FaultMessage, bool IsSuccess, double distance) CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
+        public async Task<(string FaultMessage, bool IsSuccess, double distance)> CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
         {
-            _validator.ValidateAndThrow(iataCode);
-            _validator.ValidateAndThrow(destinationIataCode);
+            await _validator.ValidateAndThrowAsync(iataCode);
+            await _validator.ValidateAndThrowAsync(destinationIataCode);
             
-            var firstAirportInfo = _airportService.GetAirportInfo(iataCode.ToUpperInvariant());
+            #warning CalculateDistanceBetweenAirports tests
+            
+            var firstAirportInfo = await _airportService.GetAirportInfo(iataCode.ToUpperInvariant());
             if (firstAirportInfo.IsSuccess == false)
             {
                 return ($"Unable to receive information about airport with code {iataCode}. Error: {firstAirportInfo.FaultMessage}", false, -1);
             }
-            var secondAirportInfo = _airportService.GetAirportInfo(destinationIataCode.ToUpperInvariant());
+            var secondAirportInfo = await _airportService.GetAirportInfo(destinationIataCode.ToUpperInvariant());
             if (secondAirportInfo.IsSuccess == false)
             {
                 return ($"Unable to receive information about airport with code {destinationIataCode}. Error: {secondAirportInfo.FaultMessage}", false, -1);

@@ -1,7 +1,6 @@
 using System.Net.Http;
 using DCS.ApplicationService;
 using DCS.ApplicationService.Validation;
-using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,8 +22,6 @@ namespace DCS.Host.Boostrap
 
         public static IServiceCollection ConfigureServices(this IServiceCollection services)
         {
-            services.AddSingleton<ICacheService, WebCacheAdapter>();
-
             services.AddSingleton<IataCodeValidator>();
             services.AddSingleton<DistanceCalculationService>();
             return services;

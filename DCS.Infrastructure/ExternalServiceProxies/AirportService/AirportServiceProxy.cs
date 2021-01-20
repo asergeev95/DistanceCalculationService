@@ -4,9 +4,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DCS.Core;
-using DCS.Infrastructure.Caching;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -14,39 +14,44 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
 {
     public class AirportServiceProxy : IAirportService
     {
-        private static readonly object LockObject = new();
         private readonly HttpClient _httpClient;
-        private readonly ICacheService _cacheService;
+        private readonly IDistributedCache _cacheService;
         private readonly AirportServiceConfiguration _serviceConfiguration;
 
-        public AirportServiceProxy(HttpClient httpClient, ICacheService cacheService, AirportServiceConfiguration serviceConfiguration)
+        public AirportServiceProxy(HttpClient httpClient, IDistributedCache cacheService, AirportServiceConfiguration serviceConfiguration)
         {
             _httpClient = httpClient;
             _cacheService = cacheService;
             _serviceConfiguration = serviceConfiguration;
         }
-        public Result<Contracts.AirportInfo> GetAirportInfo(string iataCode)
+
+        public async Task<Result<Contracts.AirportInfo>> GetAirportInfo(string iataCode)
         {
-            if (!_cacheService.TryGetValue(iataCode, out Contracts.AirportInfo airportInfo))
+            var encodedAirportInfo = await _cacheService.GetAsync(iataCode);
+            if (encodedAirportInfo == null)
             {
-                lock (LockObject)
+                var (url, method) = BuildGetAirportInfoUrl(iataCode);
+                var (isSuccess, faultMessage, value) = GetResponseAsync<AirportInfo>(url, method).Result;
+                
+                
+                
+                switch (isSuccess)
                 {
-                    if (!_cacheService.TryGetValue(iataCode, out airportInfo))
-                    {
-                       
-                        var (url, method) = BuildGetAirportInfoUrl(iataCode);
-                        var (isSuccess, faultMessage, value) = GetResponseAsync<AirportInfo>(url, method).Result;
-                        if (isSuccess == false)
+                    case false:
+                        return new Result<Contracts.AirportInfo>
                         {
-                            return new Result<Contracts.AirportInfo>
-                            {
-                                Value = null,
-                                FaultMessage = faultMessage,
-                                IsSuccess = false
-                            };
-                        }
-                        airportInfo = Map(value);
-                        _cacheService.Add(iataCode, airportInfo, DateTime.Now.AddMinutes(20));
+                            Value = null,
+                            FaultMessage = faultMessage,
+                            IsSuccess = false
+                        };
+                    default:
+                    {
+                        var airportInfo = Map(value);
+                        encodedAirportInfo = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(airportInfo));
+                        var options = new DistributedCacheEntryOptions()
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(20))
+                            .SetAbsoluteExpiration(DateTime.Now.AddHours(6));
+                        await _cacheService.SetAsync(iataCode, encodedAirportInfo, options);
                         return new Result<Contracts.AirportInfo>
                         {
                             Value = airportInfo,
@@ -56,15 +61,18 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
                     }
                 }
             }
+
+            var jsonAirportInfo = Encoding.UTF8.GetString(encodedAirportInfo);
             return new Result<Contracts.AirportInfo>
             {
-                Value = airportInfo,
+                Value = JsonConvert.DeserializeObject<Contracts.AirportInfo>(jsonAirportInfo),
                 FaultMessage = null,
                 IsSuccess = true
             };
         }
 
-        private async Task<(bool IsSuccess, string FaultMessage, T Value)> GetResponseAsync<T>(string url, HttpMethod method, string content = null) where T : class
+        private async Task<(bool IsSuccess, string FaultMessage, T Value)> GetResponseAsync<T>(string url, HttpMethod method, string content = null)
+            where T : class
         {
             try
             {
@@ -74,13 +82,14 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
                     RequestUri = new Uri(url),
                     Content = new StringContent(content ?? string.Empty, Encoding.UTF8, "application/json")
                 };
-                
+
                 var response = await _httpClient.SendAsync(httpRequest);
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     return (true, null, JsonConvert.DeserializeObject<T>(json));
                 }
+
                 var body = await response.Content.ReadAsStringAsync();
                 return (false, body, null);
             }
@@ -90,11 +99,12 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
                 throw;
             }
         }
+
         private (string Url, HttpMethod Method) BuildGetAirportInfoUrl(string iataCode)
         {
             return ($"{_serviceConfiguration.Url}/airports/{iataCode}", HttpMethod.Get);
         }
-        
+
         private static Contracts.AirportInfo Map(AirportInfo response)
         {
             return new()
@@ -116,7 +126,7 @@ namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
                 TimezoneRegionName = response.timezone_region_name
             };
         }
-        
+
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private record AirportInfo
