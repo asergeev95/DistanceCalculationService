@@ -24,7 +24,7 @@ namespace DCS.Host
             services.ConfigureServices();
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = "localhost:6379";
+                options.Configuration = Configuration.GetSection("Redis").Value;
             });
             services.ConfigureExternalServices(Configuration);
         }
@@ -34,10 +34,10 @@ namespace DCS.Host
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DCS.Host v1"));
+                
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DCS.Host v1"));
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
