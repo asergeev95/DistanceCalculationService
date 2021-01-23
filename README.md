@@ -4,7 +4,7 @@ The purpose of this service is to calculate distance in miles between two airpor
 
 You can launch a services using either a Docker or just Visual Studio/ JetBrains Rider IDE.
 
-Services has Redia as an external dependency. You should have Redis running somewhere. If your choose Docker method of runnign Redis will be installed automatically. 
+Services has Redis as an external dependency. You should have Redis running somewhere. If your choose Docker method of running Redis will be installed automatically. 
 
 
 ## Docker 
