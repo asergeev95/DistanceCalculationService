@@ -1,0 +1,26 @@
+version: '3.5'
+services:
+  application:
+    build: .
+    container_name: "DCservice" 
+    ports: 
+      - "8080:8080"
+    environment:
+    - Redis=<your current IP>:6379
+    networks:
+    - dev-local
+    restart: always 
+  
+  redis:
+    image: "redis"
+    container_name: "redis"
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - dev-local
+
+networks:
+  dev-local:
+    driver: bridge
+    name: dev-local
