@@ -4,7 +4,7 @@ using DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts;
 
 namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
 {
-    public interface IAirportService
+    public interface IAirportInfoService
     {
         Task<Result<AirportInfo>> GetAirportInfo(string iataCode);
     }

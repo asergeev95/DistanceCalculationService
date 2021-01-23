@@ -48,9 +48,9 @@ namespace DCS.Infrastructure.Tests.ExternalServices
         }
         
         [DebuggerStepThrough]
-        private static IAirportService GetService()
+        private static IAirportInfoService GetService()
         {
-            return CompositionRoot.ServiceProvider.GetRequiredService<IAirportService>();
+            return CompositionRoot.ServiceProvider.GetRequiredService<IAirportInfoService>();
         }
     }
 }

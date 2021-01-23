@@ -15,7 +15,7 @@ namespace DCS.Infrastructure.Tests.Bootstrap
                 serviceConfiguration.Url = configuration.GetSection("ConnectedServices:AirportService:Url").Value;
             });
             services.AddSingleton(isp => isp.GetRequiredService<IOptions<AirportServiceConfiguration>>().Value);
-            services.AddTransient<IAirportService, AirportServiceProxy>();
+            services.AddTransient<IAirportInfoService, AirportInfoServiceProxy>();
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = "localhost:6379";

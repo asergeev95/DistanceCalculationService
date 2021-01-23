@@ -20,7 +20,7 @@ namespace DCS.Host.Controllers
             var response =  await _calculationService.CalculateDistanceBetweenAirports(iataCode, destIataCode);
             return new AirportsDistanceState
             {
-                Distance = response.distance,
+                Distance = response.Distance,
                 IsSuccess = response.IsSuccess,
                 FaultMessage = response.FaultMessage
             };

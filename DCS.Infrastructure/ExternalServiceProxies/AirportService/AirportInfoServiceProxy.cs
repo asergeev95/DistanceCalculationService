@@ -12,13 +12,13 @@ using Serilog;
 
 namespace DCS.Infrastructure.ExternalServiceProxies.AirportService
 {
-    public class AirportServiceProxy : IAirportService
+    public class AirportInfoServiceProxy : IAirportInfoService
     {
         private readonly HttpClient _httpClient;
         private readonly IDistributedCache _cacheService;
         private readonly AirportServiceConfiguration _serviceConfiguration;
 
-        public AirportServiceProxy(HttpClient httpClient, IDistributedCache cacheService, AirportServiceConfiguration serviceConfiguration)
+        public AirportInfoServiceProxy(HttpClient httpClient, IDistributedCache cacheService, AirportServiceConfiguration serviceConfiguration)
         {
             _httpClient = httpClient;
             _cacheService = cacheService;

@@ -14,7 +14,7 @@ namespace DCS.Host.Boostrap
         {
             services.Configure<AirportServiceConfiguration>(configuration.GetSection("ConnectedServices:AirportService"));
             services.AddSingleton(isp => isp.GetRequiredService<IOptions<AirportServiceConfiguration>>().Value);
-            services.AddSingleton<IAirportService, AirportServiceProxy>();
+            services.AddSingleton<IAirportInfoService, AirportInfoServiceProxy>();
             
             services.AddSingleton<HttpClient>();
             return services;
