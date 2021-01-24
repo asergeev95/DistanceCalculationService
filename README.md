@@ -1,17 +1,17 @@
 # DistanceCalculationService
 
-The purpose of this service is to calculate distance in miles between two airports. Each an airport is identified using IATA code. 
+The purpose of this service is to calculate the distance in miles between two airports. Each airport is identified using IATA code. 
 
-You can launch a services using either a Docker or just Visual Studio/ JetBrains Rider IDE.
+You can launch a service using either in a Docker or just with Visual Studio/ JetBrains Rider IDE.
 
-Services has Redis as an external dependency. You should have Redis running somewhere. If your choose Docker method of running Redis will be installed automatically. 
+Service have Redis as an external dependency. You should have Redis running somewhere. If your choose Docker method of running Redis will be installed automatically. 
 
 
 ## Docker 
-1. clone a project to your local directory
-2. Open `docker-compose.yml` and change `<your current IP>` to your current IP
-3. in command line: `cd DistanceCalculationService`
-4. in command line: `docker-compose up -d`
+1. clone a project to your local directory: `git clone https://github.com/asergeev95/DistanceCalculationService`
+2. Open `docker-compose.yml` and change `<your current IP>` to your current IP (to explore current IP execute in command line `ipconfig`). In redis service description you can change first 6379 port as well but in this case you will need to change it in redis configuration of the application service to the same. 
+3. Execute in command line: `cd DistanceCalculationService`
+4. Execute in command line: `docker-compose up -d`
 5. Launch a browser and go to `localhost:8080`
 6. You will see a swagger page and method for distance calculation
 7. Click `Try it out`, put your input data (i.e. iataCode = ovb, destIataCode = ams) and click `Execute`
