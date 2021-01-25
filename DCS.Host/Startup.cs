@@ -19,7 +19,10 @@ namespace DCS.Host
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ExceptionFilter));
+            });
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "DCS.Host", Version = "v1"}); });
             services.ConfigureServices();
             services.AddStackExchangeRedisCache(options =>

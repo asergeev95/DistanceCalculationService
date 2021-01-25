@@ -4,6 +4,7 @@ using DCS.ApplicationService.Validation;
 using DCS.Core;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts;
+using FluentValidation;
 using GeoCoordinatePortable;
 
 namespace DCS.ApplicationService
@@ -21,26 +22,8 @@ namespace DCS.ApplicationService
 
         public async Task<AirportsDistanceState> CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
         {
-            var iataCodeValidationResult = await _validator.ValidateAsync(iataCode);
-            if (iataCodeValidationResult.IsValid == false)
-            {
-                return new AirportsDistanceState
-                {
-                    Distance = -1,
-                    FaultMessage = string.Join("; ", iataCodeValidationResult.Errors),
-                    IsSuccess = false
-                };
-            }
-            iataCodeValidationResult = await _validator.ValidateAsync(destinationIataCode);
-            if (iataCodeValidationResult.IsValid == false)
-            {
-                return new AirportsDistanceState
-                {
-                    Distance = -1,
-                    FaultMessage = string.Join("; ", iataCodeValidationResult.Errors),
-                    IsSuccess = false
-                };
-            }
+            await _validator.ValidateAndThrowAsync(iataCode);
+            await _validator.ValidateAndThrowAsync(destinationIataCode);
             
             var firstAirportInfo = await _airportInfoService.GetAirportInfo(iataCode.ToUpperInvariant());
             if (firstAirportInfo.IsSuccess == false)
