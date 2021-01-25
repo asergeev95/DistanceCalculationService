@@ -17,13 +17,7 @@ namespace DCS.Host.Controllers
         [HttpGet("iataCode&destIataCode")]
         public async Task<AirportsDistanceState> GetDistanceBetweenAirports(string iataCode, string destIataCode)
         {
-            var response =  await _calculationService.CalculateDistanceBetweenAirports(iataCode, destIataCode);
-            return new AirportsDistanceState
-            {
-                Distance = response.Distance,
-                IsSuccess = response.IsSuccess,
-                FaultMessage = response.FaultMessage
-            };
+            return await _calculationService.CalculateDistanceBetweenAirports(iataCode, destIataCode);
         }
     }
 }

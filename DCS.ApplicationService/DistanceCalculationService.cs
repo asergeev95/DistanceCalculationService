@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
+using DCS.ApplicationService.Contracts;
 using DCS.ApplicationService.Validation;
 using DCS.Core;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService;
 using DCS.Infrastructure.ExternalServiceProxies.AirportService.Contracts;
-using FluentValidation;
 using GeoCoordinatePortable;
 
 namespace DCS.ApplicationService
@@ -19,10 +19,28 @@ namespace DCS.ApplicationService
             _validator = validator;
         }
 
-        public async Task<(string FaultMessage, bool IsSuccess, double Distance)> CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
+        public async Task<AirportsDistanceState> CalculateDistanceBetweenAirports(string iataCode, string destinationIataCode)
         {
-            await _validator.ValidateAndThrowAsync(iataCode);
-            await _validator.ValidateAndThrowAsync(destinationIataCode);
+            var iataCodeValidationResult = await _validator.ValidateAsync(iataCode);
+            if (iataCodeValidationResult.IsValid == false)
+            {
+                return new AirportsDistanceState
+                {
+                    Distance = -1,
+                    FaultMessage = string.Join("; ", iataCodeValidationResult.Errors),
+                    IsSuccess = false
+                };
+            }
+            iataCodeValidationResult = await _validator.ValidateAsync(destinationIataCode);
+            if (iataCodeValidationResult.IsValid == false)
+            {
+                return new AirportsDistanceState
+                {
+                    Distance = -1,
+                    FaultMessage = string.Join("; ", iataCodeValidationResult.Errors),
+                    IsSuccess = false
+                };
+            }
             
             var firstAirportInfo = await _airportInfoService.GetAirportInfo(iataCode.ToUpperInvariant());
             if (firstAirportInfo.IsSuccess == false)
@@ -37,12 +55,22 @@ namespace DCS.ApplicationService
             var firstAirportCoordinates = new GeoCoordinate(firstAirportInfo.Value.Location.Latitude, firstAirportInfo.Value.Location.Longitude);
             var secondAirportCoordinates = new GeoCoordinate(secondAirportInfo.Value.Location.Latitude, secondAirportInfo.Value.Location.Longitude);
             var distanceInMeters = firstAirportCoordinates.GetDistanceTo(secondAirportCoordinates);
-            return (null, true, distanceInMeters * 0.00062);
+            return new AirportsDistanceState
+            {
+                Distance = distanceInMeters * 0.00062,
+                FaultMessage = null,
+                IsSuccess = true
+            };
         }
 
-        private static (string, bool, int) GetErrorResponse(string iataCode, Result<AirportInfo> firstAirportInfo)
+        private static AirportsDistanceState GetErrorResponse(string iataCode, Result<AirportInfo> airportInfo)
         {
-            return ($"Unable to receive information about airport with code {iataCode}. Error: {firstAirportInfo.FaultMessage}", false, -1);
+            return new()
+            {
+                Distance = -1,
+                FaultMessage = $"Unable to receive information about airport with code {iataCode}. Error: {airportInfo.FaultMessage}",
+                IsSuccess = false
+            };
         }
     }
 }
