@@ -9,12 +9,11 @@ Service have Redis as an external dependency. You should have Redis running some
 
 ## Docker 
 1. clone a project to your local directory: `git clone https://github.com/asergeev95/DistanceCalculationService`
-2. Open `docker-compose.yml` and change `<your current IP>` to your current IP (to explore current IP execute in command line `ipconfig`). In redis service description you can change first 6379 port as well but in this case you will need to change it in redis configuration of the application service to the same. 
-3. Execute in command line: `cd DistanceCalculationService`
-4. Execute in command line: `docker-compose up -d`
-5. Launch a browser and go to `localhost:8080`
-6. You will see a swagger page and method for distance calculation
-7. Click `Try it out`, put your input data (i.e. iataCode = ovb, destIataCode = ams) and click `Execute`
+2. Execute in command line: `cd DistanceCalculationService`
+3. Execute in command line: `docker-compose up -d`
+4. Launch a browser and go to `localhost:8080/swagger`
+5. You will see a swagger page and method for distance calculation
+6. Click `Try it out`, put your input data (i.e. iataCode = ovb, destIataCode = ams) and click `Execute`
 
 
 ## IDE

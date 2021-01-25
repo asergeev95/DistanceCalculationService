@@ -6,7 +6,7 @@ services:
     ports: 
       - "8080:8080"
     environment:
-    - Redis=<your current IP>:6379
+    - Redis=redis:6379
     networks:
     - dev-local
     restart: always 
